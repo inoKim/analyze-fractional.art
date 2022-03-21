@@ -4,26 +4,11 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 const hre = require("hardhat");
+const {deployBasketFactory, deployAll} = require("./common/deploy")
 
 async function main() {
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
-
-  // We get the contract to deploy
-  const Factory = await hre.ethers.getContractFactory("ERC721VaultFactory");
-  const _factory = await Factory.deploy("Hello, Hardhat!");
-
-  await _factory.deployed();
-
-  console.log("factory deployed to:", _factory.address);
-
-  let tx = await _factory.mint()
-  await tx.wait()
-
+  // _basketFactory = await deployBasketFactory()
+  _basketFactory = await deployAll()
 
 }
 
