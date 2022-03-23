@@ -38,22 +38,27 @@ async function deployInializeProxy(vaultTokenAddress, initializeCalldata) {
   return _factory
 }
 
-async function deployERC721TokenVault(_settingAddress) {
-  const Factory = await hre.ethers.getContractFactory("TokenVault");
-  const _factory = await Factory.deploy(_settingAddress);
-  console.log("TokenVault deployed to:", _factory.address);
-  Contracts.TokenVault = _factory
-  return _factory
-}
+// async function deployERC721TokenVault(_settingAddress) {
+//   const Factory = await hre.ethers.getContractFactory("TokenVault");
+//   const _factory = await Factory.deploy(_settingAddress);
+//   console.log("TokenVault deployed to:", _factory.address);
+//   Contracts.TokenVault = _factory
+//   return _factory
+// }
 
 
-async function deployVaultFactory(_settingAddress) {
+async function deployVaultFactory(_settingAddress) { // Create a new TokeVault contract When during deploy vaultFactory 
   const Factory = await hre.ethers.getContractFactory("ERC721VaultFactory");
   const _factory = await Factory.deploy(_settingAddress);
   await _factory.deployed();
   console.log("ERC721VaultFactory deployed to:", _factory.address);
   Contracts.VaultFactory = _factory
-  return _factory
+
+  const tokenVaultAddress = await _factory.logic()
+  const _vaultToken =_factory._tokenVault = await hre.ethers.getContractAt("TokenVault", tokenVaultAddress)
+  Contracts.TokenVault = _vaultToken
+
+  return [_factory, _vaultToken]
 }
 
 async function deployBasketFactory() {
@@ -72,29 +77,24 @@ const deployAll = async () => {
 
     const _721 = await deploySample721(user1.address)
     const _setting = await deploySetting()
-    const _vaultFactory = await deployVaultFactory(_setting.address)
-    const _tokenVault = await deployERC721TokenVault(_setting.address)
+    const [_vaultFactory, _tokenVault] = await deployVaultFactory(_setting.address)
 
     // const initializeCalldata = {
     // }
     // const _proxy = await deployInializeProxy(_tokenVault.address, initializeCalldata)
 
     const _basketFactory = await deployBasketFactory()
-
     const fileName = ".env_new"
-
-
     const data = `
   COLLECTION721_ADDRESS: ${_721.address},
   SETTINGS_ADDRESS: ${_setting.address}
   VAULTFACTORY_ADDRESS: ${_vaultFactory.address}
-
   TOKENVAULT_ADDRESS: ${_tokenVault.address}
-
   BASKETFACTORY_ADDRESS: ${_basketFactory.address}
   `
     fs.writeFileSync(fileName, data)
   } catch (e) {
+    console.error(e)
     return false
   }
   return true
@@ -105,7 +105,6 @@ module.exports = {
   Contracts,
   deployBasketFactory,
   deployInializeProxy,
-  deployERC721TokenVault,
   deployVaultFactory,
   deployAll
 }

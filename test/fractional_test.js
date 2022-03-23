@@ -53,14 +53,25 @@ describe("franctional", function () {
     expect(ownerOfTokenZero).equal(user1.address)
   })
 
-  it("Deposit NFT" , async() => {
+  it("Deposit NFT to _basket" , async() => {
     
     const [master, user1, user2] = await ethers.getSigners()
     
     const _721 = Contracts.Collection721
-    
-    const balance = await _721.balanceOf(user1)
-    // _721.connect(user1).transfer(_basket.address, )
+   
+    console.log(`721Collection Name : ${await _721.name()}`);
+
+    console.log(`721Collection Symbol : ${await _721.symbol()}`);
+
+    let owner = await _721.ownerOf(100)
+    expect(owner).equal(user1.address)
+
+    //TODO have to change `TransferFrom` to `SafeTranferFrom`
+    const tx = await _721.connect(user1).TransferFrom(user1.address, _basket.address, 100)
+    const receipt = await tx.wait() 
+
+    owner = await _721.ownerOf(100)
+    expect(owner).equal(_basket.address)
   })
 
 });
