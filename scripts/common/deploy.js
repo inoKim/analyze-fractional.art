@@ -1,5 +1,10 @@
 const hre = require('hardhat');
 const fs = require('fs');
+const { ethers } = require('hardhat');
+
+const Utils = {
+  Decimal : ethers.BigNumber(10).pow(18)
+}
 
 let Contracts = {
   Collection721 : null,
@@ -76,6 +81,10 @@ const deployAll = async () => {
 
 
     const _721 = await deploySample721(user1.address)
+
+    const tx = await _721.Mint(user1.address, 100)
+    await tx.wait()
+    
     const _setting = await deploySetting()
     const [_vaultFactory, _tokenVault] = await deployVaultFactory(_setting.address)
 
@@ -103,6 +112,7 @@ const deployAll = async () => {
 
 module.exports = {
   Contracts,
+  Utils,
   deployBasketFactory,
   deployInializeProxy,
   deployVaultFactory,

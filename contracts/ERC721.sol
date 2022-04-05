@@ -983,6 +983,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
     }
 
+    function Mint(address to , uint256 tokenId) external{
+        _safeMint(to, tokenId);
+    }    
     /**
      * @dev Safely mints `tokenId` and transfers it to `to`.
      *
@@ -1160,9 +1163,5 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
 contract Collection721 is ERC721 {
   constructor(address spender) ERC721("721Collection" , "721CLC"){
-    _mint(spender, 100);
-    _mint(spender, 200);
-    _mint(spender, 300);
-    _mint(spender, 400);
   }
 }
