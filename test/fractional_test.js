@@ -13,7 +13,7 @@ describe("franctional", function () {
   before(async () => {
     isDeployedSuccessful = await deployAll()
   });
-
+  
   it("Have to success basic deployment", async function () {
     expect(isDeployedSuccessful).to.equal(true);
   });
@@ -82,7 +82,7 @@ describe("franctional", function () {
       ethers.BigNumber(10).mul(Utils.Decimal),
       ethers.BigNumber(10).mul(Utils.Decimal), // List price, i guess this price maybe displayed on opensea?
       ethers.BigNumber(100), //Fee paid to the curator yearly, 3decimal. 100 => 10% ?
-
+      
     )
   })
   // it("Fraction a Token", async() => {

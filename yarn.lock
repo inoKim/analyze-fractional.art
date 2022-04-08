@@ -3905,6 +3905,11 @@ hardhat-gas-reporter@^1.0.7:
     eth-gas-reporter "^0.2.24"
     sha1 "^1.1.1"
 
+hardhat-klaytn-patch@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/hardhat-klaytn-patch/-/hardhat-klaytn-patch-0.0.2.tgz#d4c1c80ce5e0c46b02f23970fda051bd4e5786d9"
+  integrity sha512-qax3etGjgIDL+RY6/7x+mHUAobN4gTFBZmQlN54E8pMZCX/ImvpaIjPSACbax1ZJTJD9AXEeGC7MMSBllTdhKQ==
+
 hardhat@^2.8.4:
   version "2.8.4"
   resolved "https://registry.yarnpkg.com/hardhat/-/hardhat-2.8.4.tgz#b12cc8b8ea578fc6cefbcd9683d558adc302152d"

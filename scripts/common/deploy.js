@@ -3,7 +3,7 @@ const fs = require('fs');
 const { ethers } = require('hardhat');
 
 const Utils = {
-  Decimal : ethers.BigNumber(10).pow(18)
+  Decimal : ethers.BigNumber.from(10).pow(18)
 }
 
 let Contracts = {
@@ -93,7 +93,7 @@ const deployAll = async () => {
     // const _proxy = await deployInializeProxy(_tokenVault.address, initializeCalldata)
 
     const _basketFactory = await deployBasketFactory()
-    const fileName = ".env_new"
+    const fileName = ".deployed"
     const data = `
   COLLECTION721_ADDRESS: ${_721.address},
   SETTINGS_ADDRESS: ${_setting.address}

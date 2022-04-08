@@ -1,3 +1,4 @@
+require("hardhat-klaytn-patch");
 require("@nomiclabs/hardhat-waffle");
 require("hardhat-gas-reporter");
 require("dotenv/config");
@@ -70,7 +71,8 @@ module.exports = {
       accounts: [
         process.env.OWNER,
         process.env.ADDR1,
-      ]
+      ],
+      gasPrice: 750000000000,
     }
   },
   gasReporter: {
