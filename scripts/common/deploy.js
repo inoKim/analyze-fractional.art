@@ -3,17 +3,17 @@ const fs = require('fs');
 const { ethers } = require('hardhat');
 
 const Utils = {
-  Decimal : ethers.BigNumber.from(10).pow(18)
+  Decimal: ethers.BigNumber.from(10).pow(18)
 }
 
 let Contracts = {
-  Collection721 : null,
-  Collection1155 : null,
-  Settings :null,
-  VaultFactory:null,
-  TokenVault:null,
-  BasketFactory : null,
-  Proxy :null
+  Collection721: null,
+  Collection1155: null,
+  Settings: null,
+  VaultFactory: null,
+  TokenVault: null,
+  BasketFactory: null,
+  Proxy: null
 }
 
 async function deploySample721() {
@@ -59,8 +59,8 @@ async function deployVaultFactory(_settingAddress) { // Create a new TokeVault c
   console.log("ERC721VaultFactory deployed to:", _factory.address);
   Contracts.VaultFactory = _factory
 
-  const tokenVaultAddress = await _factory.logic()
-  const _vaultToken =_factory._tokenVault = await hre.ethers.getContractAt("TokenVault", tokenVaultAddress)
+  const tokenvaultaddress = await _factory.logic()
+  const _vaultToken = _factory._tokenvault = await hre.ethers.getContractAt("TokenVault", tokenvaultaddress)
   Contracts.TokenVault = _vaultToken
 
   return [_factory, _vaultToken]
@@ -82,7 +82,7 @@ const deployAll = async () => {
     const _721 = await deploySample721()
     const tx = await _721.Mint(user1.address, 100)
     await tx.wait()
-    
+
     const _setting = await deploySetting()
     const [_vaultFactory, _tokenVault] = await deployVaultFactory(_setting.address)
 
@@ -93,12 +93,12 @@ const deployAll = async () => {
     const _basketFactory = await deployBasketFactory()
     const fileName = ".deployed"
     const data = `
-  COLLECTION721_ADDRESS: ${_721.address},
-  SETTINGS_ADDRESS: ${_setting.address}
-  VAULTFACTORY_ADDRESS: ${_vaultFactory.address}
-  TOKENVAULT_ADDRESS: ${_tokenVault.address}
-  BASKETFACTORY_ADDRESS: ${_basketFactory.address}
-  `
+COLLECTION721_ADDRESS=${_721.address}
+SETTINGS_ADDRESS=${_setting.address}
+VAULTFACTORY_ADDRESS=${_vaultFactory.address}
+TOKENVAULT_ADDRESS=${_tokenVault.address}
+BASKETFACTORY_ADDRESS=${_basketFactory.address}
+`
     fs.writeFileSync(fileName, data)
   } catch (e) {
     console.error(e)
@@ -108,11 +108,38 @@ const deployAll = async () => {
 
 }
 
+const loadAll = async () => {
+  try {
+    Contracts.BasketFactory = await ethers.getContractAt((await hre.artifacts.readArtifact("BasketFactory")).abi, process.env.BASKETFACTORY_ADDRESS)
+    Contracts.Settings = await ethers.getContractAt((await hre.artifacts.readArtifact("Settings")).abi, process.env.SETTINGS_ADDRESS)
+    Contracts.Collection721 = await ethers.getContractAt((await hre.artifacts.readArtifact("Sample721")).abi, process.env.COLLECTION721_ADDRESS)
+    Contracts.VaultFactory = await ethers.getContractAt((await hre.artifacts.readArtifact("ERC721VaultFactory")).abi, process.env.VAULTFACTORY_ADDRESS)
+
+    const tokenVaultAddress = await Contracts.VaultFactory.logic()
+    Contracts.TokenVault = await hre.ethers.getContractAt((await hre.artifacts.readArtifact("TokenVault")).abi, tokenVaultAddress)
+    return true
+  } catch (err) {
+    console.error(err)
+    return false
+  }
+}
+
+
+// let Contracts = {
+//   Collection721 : null,
+//   Collection1155 : null,
+//   Settings :null,
+//   VaultFactory:null,
+//   TokenVault:null,
+//   BasketFactory : null,
+//   Proxy :null
+// }
 module.exports = {
   Contracts,
   Utils,
   deployBasketFactory,
   deployInializeProxy,
   deployVaultFactory,
-  deployAll
+  deployAll,
+  loadAll
 }

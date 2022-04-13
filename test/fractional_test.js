@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { Contracts, Utils, deployAll } = require("../scripts/common/deploy")
+const { Contracts, Utils, deployAll, loadAll } = require("../scripts/common/deploy")
 
 
 describe("franctional", function () {
@@ -10,15 +10,24 @@ describe("franctional", function () {
 
   let isDeployedSuccessful = false;
 
+  const useDeployedContract = process.env.USE_DEPLOYED;
   before(async () => {
-    isDeployedSuccessful = await deployAll()
+    this.timeout(1000 * 60 * 20);
+    if (useDeployedContract) {
+
+      isDeployedSuccessful = await loadAll()
+    } else {
+      isDeployedSuccessful = await deployAll()
+    }
   });
-  
-  it("Have to success basic deployment", async function () {
+
+  it.only("Have to success basic deployment", async function () {
+    this.timeout(1000 * 60 * 20);
     expect(isDeployedSuccessful).to.equal(true);
   });
 
   it("Approve ERC721", async () => {
+    this.timeout(1000 * 60 * 20);
     // excute approvalForAll() for VAULTFactory
     const [master, user1, user2] = await ethers.getSigners()
 
@@ -34,6 +43,7 @@ describe("franctional", function () {
 
 
   const createBasket = async (operator) => {
+    this.timeout(1000 * 60 * 20);
     const _bFactory = Contracts.BasketFactory
     let _tx = await _bFactory.connect(operator).createBasket()
     const _recipt = await _tx.wait()
@@ -41,7 +51,8 @@ describe("franctional", function () {
     return _recipt.events[_recipt.events.length - 1].args["_address"] // new basket address
   }
 
-  it("Make Basket", async () => {
+  it.only("Make Basket", async () => {
+    this.timeout(1000 * 60 * 20);
     const [master, user1, user2] = await ethers.getSigners()
     const _bFactory = Contracts.BasketFactory
 
@@ -55,13 +66,23 @@ describe("franctional", function () {
     expect(ownerOfTokenZero).equal(user1.address)
   })
 
-  it("Deposit NFT to _basket & Fractional", async () => {
+  it.only("Deposit NFT to _basket & Fractional", async () => {
+    this.timeout(1000 * 60 * 20);
 
-    const _tokenIDMintedAlready = 100
+    const _tokenIDMintedAlready = Math.floor(Math.random() *100 )
+    console.log("try to minting... tokenID is : ", _tokenIDMintedAlready)
 
     const [master, user1, user2] = await ethers.getSigners()
-    // check token's owner
+
     const _721 = Contracts.Collection721
+    // mint a new token for fraction
+    try{
+      await _721.connect(user1).Mint(user1.address, _tokenIDMintedAlready )
+    } catch(err){
+      console.error(err)
+    }
+
+    // check token's owner
     let owner = await _721.ownerOf(_tokenIDMintedAlready)
     expect(owner).equal(user1.address)
 
@@ -70,8 +91,8 @@ describe("franctional", function () {
     let tx = await _721.connect(user1).transferFrom(user1.address, _basket.address, _tokenIDMintedAlready)
     let receipt = await tx.wait()
     owner = await _721.ownerOf(_tokenIDMintedAlready)
-    console.log("basket's address: " , _basket.address)
-    console.log("Current NFT owner :" , owner)
+    console.log("basket's address: ", _basket.address)
+    console.log("Current NFT owner :", owner)
     expect(owner).equal(_basket.address)
 
     const _vaultFactory = Contracts.VaultFactory
@@ -81,8 +102,8 @@ describe("franctional", function () {
     // Fraction
 
     const preCount = await _vaultFactory.vaultCount();
-    
-    await _vaultFactory.connect(user1).mint(
+
+    tx = await _vaultFactory.connect(user1).mint(
       "Vault Name",
       "VAULTSYMBOL",
       _basket.address,
@@ -92,15 +113,17 @@ describe("franctional", function () {
       ethers.BigNumber.from(100).mul(Utils.Decimal), //Fee paid to the curator yearly, 3decimal. 100 => 10% ?
     )
 
+    await tx.wait()
     const currentCount = await _vaultFactory.vaultCount();
-    console.log("Counts of vaults:" , currentCount)
+    console.log("Counts of vaults:", currentCount)
 
     expect(Number(preCount) + 1).equal(currentCount)
 
-    
+
 
   })
   // it("Fraction a Token", async() => {
+  //   this.timeout(1000*60*20);
   //   const [master, user1, user2] = await ethers.getSigners()
   // })
 
