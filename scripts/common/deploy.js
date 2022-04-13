@@ -16,9 +16,9 @@ let Contracts = {
   Proxy :null
 }
 
-async function deploySample721(tokenSpender) {
-  const Factory = await hre.ethers.getContractFactory("Collection721");
-  const _factory = await Factory.deploy(tokenSpender);
+async function deploySample721() {
+  const Factory = await hre.ethers.getContractFactory("Sample721");
+  const _factory = await Factory.deploy();
   await _factory.deployed();
   console.log("Collection721 deployed to:", _factory.address);
   Contracts.Collection721 = _factory
@@ -79,9 +79,7 @@ const deployAll = async () => {
   try {
     const [master, user1] = await hre.ethers.getSigners()
 
-
-    const _721 = await deploySample721(user1.address)
-
+    const _721 = await deploySample721()
     const tx = await _721.Mint(user1.address, 100)
     await tx.wait()
     

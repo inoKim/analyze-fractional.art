@@ -21,6 +21,7 @@ describe("franctional", function () {
   it("Approve ERC721", async () => {
     // excute approvalForAll() for VAULTFactory
     const [master, user1, user2] = await ethers.getSigners()
+
     const _vFactory = Contracts.VaultFactory
     const _721 = Contracts.Collection721
 
@@ -66,24 +67,38 @@ describe("franctional", function () {
 
     //TODO have to change `TransferFrom` to `SafeTranferFrom`
     // Transfer owned token(100) for fractional
-    const tx = await _721.connect(user1).transferFrom(user1.address, _basket.address, _tokenIDMintedAlready)
-    const receipt = await tx.wait()
-
+    let tx = await _721.connect(user1).transferFrom(user1.address, _basket.address, _tokenIDMintedAlready)
+    let receipt = await tx.wait()
     owner = await _721.ownerOf(_tokenIDMintedAlready)
+    console.log("basket's address: " , _basket.address)
+    console.log("Current NFT owner :" , owner)
     expect(owner).equal(_basket.address)
 
-    // Fraction
     const _vaultFactory = Contracts.VaultFactory
-    _vaultFactory.mint(
+    //Approve 
+    tx = await _basket.connect(user1).setApprovalForAll(_vaultFactory.address, true);
+    receipt = await tx.wait()
+    // Fraction
+
+    const preCount = await _vaultFactory.vaultCount();
+    
+    await _vaultFactory.connect(user1).mint(
       "Vault Name",
       "VAULTSYMBOL",
-      _721.address,
-      _tokenIDMintedAlready,
-      ethers.BigNumber(10).mul(Utils.Decimal),
-      ethers.BigNumber(10).mul(Utils.Decimal), // List price, i guess this price maybe displayed on opensea?
-      ethers.BigNumber(100), //Fee paid to the curator yearly, 3decimal. 100 => 10% ?
-      
+      _basket.address,
+      ethers.BigNumber.from(0),
+      ethers.BigNumber.from(10).mul(Utils.Decimal),
+      ethers.BigNumber.from(10).mul(Utils.Decimal), // List price, i guess this price maybe displayed on opensea?
+      ethers.BigNumber.from(100).mul(Utils.Decimal), //Fee paid to the curator yearly, 3decimal. 100 => 10% ?
     )
+
+    const currentCount = await _vaultFactory.vaultCount();
+    console.log("Counts of vaults:" , currentCount)
+
+    expect(Number(preCount) + 1).equal(currentCount)
+
+    
+
   })
   // it("Fraction a Token", async() => {
   //   const [master, user1, user2] = await ethers.getSigners()
