@@ -73,6 +73,7 @@ module.exports = {
         process.env.ADDR1,
       ],
       gasPrice: 750000000000,
+      // gas: 2100000,
     }
   },
   gasReporter: {
