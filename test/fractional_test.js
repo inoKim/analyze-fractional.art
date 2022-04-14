@@ -13,7 +13,7 @@ describe("franctional", function () {
   const useDeployedContract = process.env.USE_DEPLOYED;
   before(async () => {
     this.timeout(1000 * 60 * 20);
-    if (useDeployedContract) {
+    if (useDeployedContract === 'true') {
 
       isDeployedSuccessful = await loadAll()
     } else {
