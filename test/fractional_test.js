@@ -77,7 +77,9 @@ describe("franctional", function () {
     const _721 = Contracts.Collection721
     // mint a new token for fraction
     try{
-      await _721.connect(user1).Mint(user1.address, _tokenIDMintedAlready )
+      let tx = await _721.Mint(user1.address, _tokenIDMintedAlready )
+      await tx.wait()
+
     } catch(err){
       console.error(err)
     }
